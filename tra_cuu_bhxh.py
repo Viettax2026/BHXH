@@ -8,6 +8,7 @@ sau mỗi người, nên dừng giữa chừng vẫn giữ được phần đã 
 Cách chạy:
     python tra_cuu_bhxh.py danh_sach.xlsx
     python tra_cuu_bhxh.py danh_sach.xlsx -o ket_qua.xlsx --bat-dau 5
+    python tra_cuu_bhxh.py danh_sach.xlsx --gia-lap   (thử trên trang giả lập)
 """
 
 import argparse
@@ -151,8 +152,9 @@ class GhiKetQua:
 
 
 class TrangTraCuu:
-    def __init__(self, page):
+    def __init__(self, page, url):
         self.page = page
+        self.url = url
         self.thong_bao_dialog = []
         page.on("dialog", self._khi_co_dialog)
 
@@ -208,13 +210,13 @@ class TrangTraCuu:
             o.first.click()
 
     def lam_moi_captcha(self):
-        anh = self.page.locator("img[src*='Captcha' i]")
+        anh = self.page.locator("img[src*='Captcha' i], img[id*='Captcha' i], img[title*='đổi mã']")
         if anh.count():
             anh.first.click()
             time.sleep(0.5)
 
     def dien_form(self, nguoi):
-        self.page.goto(URL, wait_until="networkidle")
+        self.page.goto(self.url, wait_until="networkidle")
         for khoa in ("tinh", "huyen", "xa", "thon"):
             self.chon_dropdown(khoa, nguoi.get(khoa))
         self.dien("ho_ten", nguoi.get("ho_ten"))
@@ -228,6 +230,7 @@ class TrangTraCuu:
         if sel:
             self.page.fill(sel, ma_xac_nhan)
         bang_truoc = self.page.evaluate(JS_LAY_BANG)
+        dong_truoc = set(self.page.inner_text("body").splitlines())
         self.thong_bao_dialog.clear()
         nut = self.page.get_by_text("Tra cứu", exact=True)
         if not nut.count():
@@ -240,7 +243,11 @@ class TrangTraCuu:
         time.sleep(1.5)
         bang = [b for b in self.page.evaluate(JS_LAY_BANG) if b not in bang_truoc]
         van_ban = "\n".join(" | ".join(c for c in r if c) for b in bang for r in b)
-        return bang, van_ban, "; ".join(self.thong_bao_dialog)
+        # Thông báo mới hiện trên trang (vd: sai mã xác nhận, không tìm thấy).
+        dong_moi = [d.strip() for d in self.page.inner_text("body").splitlines()
+                    if d.strip() and "\t" not in d and d not in dong_truoc and d.strip() not in van_ban]
+        thong_bao = self.thong_bao_dialog + dong_moi[:5]
+        return bang, van_ban, "; ".join(thong_bao)
 
 
 def main():
@@ -248,11 +255,16 @@ def main():
     ap.add_argument("dau_vao", help="File Excel danh sách người cần tra")
     ap.add_argument("-o", "--dau-ra", help="File Excel kết quả (mặc định: ket_qua_<thời gian>.xlsx)")
     ap.add_argument("--bat-dau", type=int, default=1, help="Bắt đầu từ người thứ mấy trong danh sách (mặc định 1)")
+    ap.add_argument("--gia-lap", action="store_true", help="Thử trên trang giả lập gia_lap.html thay vì trang BHXH thật")
+    ap.add_argument("--url", help="Địa chỉ trang tra cứu khác (mặc định: trang BHXH thật)")
     args = ap.parse_args()
+    url = args.url or (Path(__file__).with_name("gia_lap.html").resolve().as_uri() if args.gia_lap else URL)
 
     nguoi = doc_dau_vao(args.dau_vao)[args.bat_dau - 1:]
     dau_ra = args.dau_ra or f"ket_qua_{datetime.now():%Y%m%d_%H%M}.xlsx"
     ghi = GhiKetQua(dau_ra)
+    if url != URL:
+        print(f"Đang dùng trang: {url}")
     print(f"Có {len(nguoi)} người cần tra. Kết quả ghi vào: {Path(dau_ra).resolve()}")
     print("Với mỗi người: nhìn ảnh mã xác nhận trên trình duyệt rồi gõ mã vào đây.")
     print("  Gõ 'r' để đổi ảnh mã khác, 's' để bỏ qua người này, 'q' để dừng.\n")
@@ -263,7 +275,7 @@ def main():
         except Exception:
             trinh_duyet = p.chromium.launch(headless=False)
         page = trinh_duyet.new_page()
-        trang = TrangTraCuu(page)
+        trang = TrangTraCuu(page, url)
 
         for i, ng in enumerate(nguoi, start=1):
             print(f"[{i}/{len(nguoi)}] {ng.get('ho_ten')} - {ng.get('cccd')}")

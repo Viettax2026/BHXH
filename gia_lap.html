@@ -1,0 +1,140 @@
+<meta charset="utf-8">
+<title>Form tra cứu giả lập</title>
+<style>
+/* Layout: one narrow column, a test banner on top, the form as a two-column label/field grid, results below */
+:root {
+  --bg: #f3f5f4; --panel: #ffffff; --fg: #1d2622; --muted: #5d6a64; --line: #d3dad6;
+  --accent: #1f6f5c; --accent-fg: #ffffff; --warn-bg: #fff3d6; --warn-fg: #6b4a00; --err: #b3261e;
+  --font-body: "Be Vietnam Pro", system-ui, sans-serif; --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #131917; --panel: #1b2320; --fg: #e3ebe7; --muted: #9aa8a1; --line: #2f3b36;
+  --accent: #5cc4a6; --accent-fg: #0d1613; --warn-bg: #3a2f12; --warn-fg: #f3d58a; --err: #ff8a80; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #131917; --panel: #1b2320; --fg: #e3ebe7; --muted: #9aa8a1; --line: #2f3b36;
+  --accent: #5cc4a6; --accent-fg: #0d1613; --warn-bg: #3a2f12; --warn-fg: #f3d58a; --err: #ff8a80; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; margin: 0; padding: 24px 16px; }
+.wrap { max-width: 720px; margin: 0 auto; display: grid; gap: 20px; }
+.banner { background: var(--warn-bg); color: var(--warn-fg); padding: 12px 14px; border-radius: 6px; line-height: 1.5; }
+h1 { font-size: 1.35rem; margin: 0; text-wrap: balance; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 20px; }
+table.form { width: 100%; border-collapse: collapse; }
+table.form td { padding: 7px 6px; vertical-align: middle; }
+table.form td:first-child { width: 34%; color: var(--muted); }
+input[type=text], select { width: 100%; box-sizing: border-box; padding: 8px 10px; font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 5px; }
+input:focus, select:focus, a:focus, button:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.radios { display: flex; gap: 16px; margin-top: 6px; font-size: .9rem; }
+.cap { display: flex; gap: 10px; align-items: center; }
+.cap input { max-width: 140px; }
+.cap img { border: 1px solid var(--line); border-radius: 4px; cursor: pointer; }
+.btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.btn { padding: 9px 18px; border-radius: 5px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-fg); text-decoration: none; font-weight: 600; cursor: pointer; font: inherit; }
+.btn.ghost { background: transparent; color: var(--accent); }
+.req { color: var(--err); }
+#thongbao { color: var(--err); font-weight: 600; }
+#thongbao:empty { display: none; }
+.kq { overflow-x: auto; }
+.kq table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.kq th, .kq td { border: 1px solid var(--line); padding: 7px 9px; text-align: left; white-space: nowrap; }
+.kq th { background: var(--bg); }
+.note { color: var(--muted); font-size: .85rem; }
+@media (max-width: 520px) { table.form td { display: block; width: auto !important; padding: 4px 0; } }
+</style>
+
+<div class="wrap">
+  <div class="banner"><strong>Trang giả lập để thử nghiệm.</strong> Đây không phải trang của cơ quan BHXH. Các ô nhập có cùng nhãn với trang tra cứu hộ gia đình thật, còn dữ liệu trả về là dữ liệu mẫu tự sinh, không có thật.</div>
+  <h1>Form tra cứu giả lập</h1>
+  <div class="panel">
+    <table class="form">
+      <tr><td><span>Tỉnh/TP</span><span class="req">*</span></td><td><select id="tinh"></select></td></tr>
+      <tr><td><span>Quận/Huyện</span></td><td><select id="huyen"><option value="">- Chọn huyện -</option></select></td></tr>
+      <tr><td><span>Phường/Xã</span></td><td><select id="xa"><option value="">-Chọn Phường/xã-</option></select></td></tr>
+      <tr><td><span>Thôn/Xóm</span></td><td><select id="thon"><option value="">- Chọn thôn/xóm -</option></select></td></tr>
+      <tr><td><span>Họ tên</span><span class="req">*</span></td><td>
+        <input type="text" id="hoten">
+        <div class="radios"><label><input type="radio" name="kieu" id="codau" checked> Có dấu</label><label><input type="radio" name="kieu" id="khongdau"> Không dấu</label></div>
+      </td></tr>
+      <tr><td><span>CCCD/CMND/Hộ chiếu</span><span class="req"> *</span></td><td><input type="text" id="cccd"></td></tr>
+      <tr><td><span>Ngày sinh</span></td><td><input type="text" id="ngaysinh" placeholder="dd/mm/yyyy hoặc năm sinh"></td></tr>
+      <tr><td><span>Mã số BHXH</span></td><td><input type="text" id="mabhxh"></td></tr>
+      <tr><td><span>Mã xác nhận</span><span class="req">*</span></td><td>
+        <div class="cap"><input type="text" id="captcha" autocomplete="off"><img id="CaptchaImage" alt="Mã xác nhận" title="Bấm để đổi mã khác" width="120" height="40"></div>
+      </td></tr>
+    </table>
+    <div class="btns"><a href="#" class="btn" id="tracuu">Tra cứu</a><button type="button" class="btn ghost" id="nhaplai">Nhập lại</button></div>
+    <p class="note">Mã xác nhận ở trang giả lập này luôn hiện rõ để dễ thử. Bấm vào ảnh để đổi mã. Nhập CCCD có đuôi 999 để thử trường hợp không tìm thấy.</p>
+  </div>
+  <div id="thongbao"></div>
+  <div id="ketqua" class="kq"></div>
+</div>
+
+<script>
+const DIA_BAN = {
+  "Thành phố Hà Nội": { "Quận Ba Đình": { "Phường Điện Biên": ["Tổ 1", "Tổ 2"], "Phường Kim Mã": ["Tổ 5"] },
+                        "Huyện Đông Anh": { "Xã Uy Nỗ": ["Thôn Đường Nhạn", "Thôn Lại Đà"] } },
+  "Thành phố Hồ Chí Minh": { "Quận 1": { "Phường Bến Nghé": ["Khu phố 1"], "Phường Đa Kao": ["Khu phố 2"] },
+                             "Huyện Củ Chi": { "Xã Tân Thông Hội": ["Ấp Chợ", "Ấp Bàu Sim"] } },
+  "Tỉnh Nghệ An": { "Thành phố Vinh": { "Phường Hưng Bình": ["Khối 3"] },
+                   "Huyện Nghi Lộc": { "Xã Nghi Phong": ["Xóm 1", "Xóm 2"] } },
+};
+const $ = id => document.getElementById(id);
+function nap(sel, macDinh, ds) {
+  sel.innerHTML = `<option value="">${macDinh}</option>` + ds.map(t => `<option value="${t}">${t}</option>`).join("");
+}
+nap($("tinh"), "- Chọn tỉnh -", Object.keys(DIA_BAN));
+// Danh sách cấp dưới nạp chậm một chút, giống trang thật.
+$("tinh").onchange = () => setTimeout(() => {
+  nap($("huyen"), "- Chọn huyện -", Object.keys(DIA_BAN[$("tinh").value] || {}));
+  nap($("xa"), "-Chọn Phường/xã-", []); nap($("thon"), "- Chọn thôn/xóm -", []);
+}, 400);
+$("huyen").onchange = () => setTimeout(() => {
+  nap($("xa"), "-Chọn Phường/xã-", Object.keys((DIA_BAN[$("tinh").value] || {})[$("huyen").value] || {}));
+  nap($("thon"), "- Chọn thôn/xóm -", []);
+}, 400);
+$("xa").onchange = () => setTimeout(() => {
+  nap($("thon"), "- Chọn thôn/xóm -", (((DIA_BAN[$("tinh").value] || {})[$("huyen").value] || {})[$("xa").value]) || []);
+}, 400);
+
+let ma = "";
+function veCaptcha() {
+  ma = Array.from({ length: 5 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
+  const c = document.createElement("canvas"); c.width = 120; c.height = 40;
+  const g = c.getContext("2d");
+  g.fillStyle = "#eef2f0"; g.fillRect(0, 0, 120, 40);
+  g.font = "bold 24px monospace"; g.fillStyle = "#1d2622"; g.textBaseline = "middle";
+  [...ma].forEach((ch, i) => { g.save(); g.translate(14 + i * 21, 20); g.rotate((Math.random() - .5) * .4); g.fillText(ch, -7, 0); g.restore(); });
+  $("CaptchaImage").src = c.toDataURL();
+}
+$("CaptchaImage").onclick = veCaptcha;
+veCaptcha();
+
+function hash(s) { let h = 7; for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h; }
+function soMa(h, n) { return String(h).padStart(n, "0").slice(-n); }
+
+$("tracuu").onclick = e => {
+  e.preventDefault();
+  $("ketqua").innerHTML = ""; $("thongbao").textContent = "";
+  const hoten = $("hoten").value.trim(), cccd = $("cccd").value.trim(), tinh = $("tinh").value;
+  if (!tinh || !hoten || !cccd) { $("thongbao").textContent = "Vui lòng nhập đủ Tỉnh/TP, Họ tên và CCCD/CMND/Hộ chiếu."; return; }
+  if ($("captcha").value.trim().toUpperCase() !== ma) { $("thongbao").textContent = "Mã xác nhận không đúng."; veCaptcha(); $("captcha").value = ""; return; }
+  setTimeout(() => {
+    veCaptcha(); $("captcha").value = "";
+    if (cccd.endsWith("999")) { $("thongbao").textContent = "Không tìm thấy thông tin phù hợp."; return; }
+    const h = hash(cccd + hoten);
+    const diachi = [$("thon").value, $("xa").value, $("huyen").value, tinh].filter(Boolean).join(", ");
+    const ns = $("ngaysinh").value.trim() || "01/01/" + (1960 + h % 40);
+    const hang = [
+      [hoten.toUpperCase(), $("mabhxh").value.trim() || soMa(h, 10), ns, "Chủ hộ", diachi],
+      ["THÀNH VIÊN MẪU A", soMa(h * 3, 10), "15/06/" + (1985 + h % 15), "Vợ/Chồng", diachi],
+      ["THÀNH VIÊN MẪU B", soMa(h * 7, 10), "20/09/" + (2010 + h % 10), "Con", diachi],
+    ];
+    $("ketqua").innerHTML = `<p class="note">Dữ liệu mẫu tự sinh. Mã hộ gia đình: ${soMa(h * 11, 12)}</p><table>
+      <tr><th>Họ tên</th><th>Mã số BHXH</th><th>Ngày sinh</th><th>Quan hệ với chủ hộ</th><th>Địa chỉ</th></tr>
+      ${hang.map(r => "<tr>" + r.map(c => `<td>${c.replace(/</g, "&lt;")}</td>`).join("") + "</tr>").join("")}</table>`;
+  }, 600);
+};
+$("nhaplai").onclick = () => {
+  ["hoten", "cccd", "ngaysinh", "mabhxh", "captcha"].forEach(id => $(id).value = "");
+  $("tinh").value = ""; $("tinh").onchange(); $("ketqua").innerHTML = ""; $("thongbao").textContent = "";
+};
+</script>

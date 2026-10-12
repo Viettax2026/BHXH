@@ -49,6 +49,17 @@ Sau khi thấy kết quả, Enter để lưu và sang người tiếp, hoặc `l
 
 Tùy chọn: `-o ket_qua.xlsx` để đặt tên file kết quả, `--bat-dau 20` để chạy tiếp từ người thứ 20.
 
+## Thử trước trên trang giả lập
+
+File `gia_lap.html` là một trang giả lập có cùng các ô nhập với trang thật, dữ liệu trả về là dữ liệu mẫu tự sinh.
+Để thử script mà không cần vào trang BHXH thật:
+
+```
+python tra_cuu_bhxh.py mau_danh_sach.xlsx --gia-lap
+```
+
+Trên trang giả lập, Tỉnh/TP có Hà Nội, TP Hồ Chí Minh và Nghệ An. Nhập CCCD có đuôi `999` để thử trường hợp không tìm thấy, hoặc gõ sai mã xác nhận để thử trường hợp sai mã.
+
 ## Kết quả
 
 File `ket_qua_<ngày giờ>.xlsx` gồm:
